@@ -1,0 +1,83 @@
+﻿<?php
+$url = $count = $search = $replace = $title = '';
+
+if(!empty($_POST)) {
+    
+    $url = $_POST['url'];
+    $count = $_POST['count'];
+    $search = $_POST['search'];
+    $replace = $_POST['replace'];
+    $title = $_POST['title'];
+    
+    $html = '';
+    $result = [
+        'count' => 0,
+        'file' => '',
+    ];
+    if(!empty($url)) {
+        $html = file_get_contents($url);
+    }
+    
+    if(!empty($html) && !empty($title)) {
+        $html = preg_replace("/<title(.+?)\/title>/is", "<title>" . $title . "</title>", $html);        
+    }
+    
+    if(!empty($html) && !empty($count)) {
+        $result['count'] = substr_count($html, $count);
+    }
+    
+    if(!empty($html) && !empty($search) && !empty($replace)) {
+        $html = preg_replace("/(" .$search. "+?)/is", $replace, $html);       
+    }
+    
+    if(!empty($html) && !empty($title)) {
+        $filename = $title . '_' . date("Y-m-d-H-i-s").'.txt';
+        $filepath = '' . $filename;
+        file_put_contents($filepath, $html);
+        $result['file'] = $filename;
+    }
+
+}
+?><html>
+    <header>
+        <title>test</title>
+    </header>
+    <body>
+        
+        <?php if(!empty($_POST)) { ?>
+        <p>форма отправлена</p>
+        <p>количество вхождений count <?php echo $result['count'] ?></p>
+        <p>сохранённый файл <?php echo $result['file'] ?></p>
+        <?php } ?>
+        
+        <form action="" method="POST">
+            
+            <label for="url">Url</label>
+            <input type="text" name="url" id="url" value="<?php echo $url ?>" />
+
+            <br /><br /><br />            
+
+
+            <label for="count">посчитать</label>
+            <input type="text" name="count" id="count" value="<?php echo $count ?>" />
+            
+            <br /><br /><br />            
+
+            <label for="search">заменить</label>
+            <input type="text" name="search" id="search" value="<?php echo $search ?>" />
+            <label for="replace">на</label>
+            <input type="text" name="replace" id="replace" value="<?php echo $replace ?>" />
+            
+            <br /><br /><br />            
+            
+            <label for="title">title</label>
+            <input type="text" name="title" id="title" value="<?php echo $title ?>" />
+            
+            <br /><br /><br />            
+            
+            <button type="submit">отправить</button>
+                
+        </form>
+        
+    </body>
+</html>
